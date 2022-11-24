@@ -7,26 +7,12 @@ import { calculateNewValue } from '@testing-library/user-event/dist/utils';
 
 function Home() {
     const [data, setData] = useState([])
-    const [receptions, setReceptions] = useState(false)
+    const [doctor, setDoctor] = useState(false)
     const [vital, setVital] = useState(false)
     const [billings, setBillings] = useState(false)
-    const [synlabs, setSynlabs] = useState(false)
-    const [pharmacies, setPharmacies] = useState("")
+    const [laboratory, setLaboratory] = useState(false)
+    const [pharmacy, setPharmacy] = useState("")
 
-    useEffect(() => {
-        calc()
-    }, [])
-    const calc = async () => {
-        const response = axios.get('https://misas.avonmedical.com:8020/api/v1/get-queue')
-        console.log('response from server', response)
-        // setData(response.data)
-    }
-
-
-
-    // We need ref in this, because we are dealing
-    // with JS setInterval to keep track of it and
-    // stop it when needed
     const Ref = useRef(null);
 
     // The state for our timer
@@ -49,9 +35,6 @@ function Home() {
             = getTimeRemaining(e);
         if (total >= 0) {
 
-            // update the timer
-            // check if less than 10 then we need to 
-            // add '0' at the beginning of the variable
             setTimer(
                 (hours > 9 ? hours : '0' + hours) + ':' +
                 (minutes > 9 ? minutes : '0' + minutes) + ':'
@@ -63,14 +46,7 @@ function Home() {
 
     const clearTimer = (e) => {
 
-        // If you adjust it you should also need to
-        // adjust the Endtime formula we are about
-        // to code next    
         setTimer('01:00:59');
-
-        // If you try to remove this line the 
-        // updating of timer Variable will be
-        // after 1000ms or 1sec
         if (Ref.current) clearInterval(Ref.current);
         const id = setInterval(() => {
             startTimer(e);
@@ -81,25 +57,13 @@ function Home() {
     const getDeadTime = () => {
         let deadline = new Date();
 
-        // This is where you need to adjust if 
-        // you entend to add more time
         deadline.setSeconds(deadline.getSeconds() + 180);
         return deadline;
     }
-
-    // We can use useEffect so that when the component
-    // mount the timer will start as soon as possible
-
-    // We put empty array to act as componentDid
-    // mount only
     useEffect(() => {
         clearTimer(getDeadTime());
     }, []);
 
-    // Another way to call the clearTimer() to start
-    // the countdown is via action event from the
-    // button first we create function to be called
-    // by the button
     const onClickReset = () => {
         clearTimer(getDeadTime());
     }
@@ -110,7 +74,7 @@ function Home() {
 
     const receptionsHandler = (system_id) => {
         console.log('clicked')
-        setReceptions(system_id)
+        setDoctor(system_id)
     }
     const vitalHandler = (system_id) => {
 
@@ -122,17 +86,18 @@ function Home() {
     }
     const synlabsHandler = (system_id) => {
 
-        setSynlabs(system_id)
+        setLaboratory(system_id)
     }
     const pharmaciesHandler = (system_id) => {
         console.log('clicked....', system_id)
-        setPharmacies(system_id)
+        setPharmacy(system_id)
         // setPharmacies((prev) => !prev)
     }
 
     const fetchData = async () => {
-        const response = await axios.get('http://hollymab.com/api/mails')
-
+        const response = await axios.get('https://misas.avonmedical.com:8020/api/v1/get-queue')
+        console.log(response.data.vitals[0])
+        console.log(response.data)
         setData(response.data)
     }
     const timestamp = Date.now()
@@ -146,7 +111,7 @@ function Home() {
                     <div className='text-center'>
                         <ItemSlider>
                             {
-                                data && data?.vitals?.map((item, i) => (<p key={i} style={{ backgroundColor: vital == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${vital === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item.system_id)}>{item.system_id} <span className='text-sm bg-violet-600 text-white'> {ttime}</span></p>))
+                                data && data?.vitals?.map((item, i) => (<div key={i} style={{ backgroundColor: vital == item ? "blue" : "" }} className={`flex justify-center text-[25px] cursor-pointer ${vital === item ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
                             }
                         </ItemSlider>
                     </div>
@@ -157,7 +122,7 @@ function Home() {
 
                         <ItemSlider>
                             {
-                                data && data?.billings?.map((item, i) => (<p key={i} style={{ backgroundColor: billings == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${billings === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setBillings(item.system_id)}>{item.system_id}<span className='text-sm bg-red-300 text-white'> {ttime}</span></p>))
+                                data && data?.billings?.map((item, i) => (<div key={i} style={{ backgroundColor: billings == item ? "blue" : "" }} className={`flex justify-center text-[25px] cursor-pointer ${billings === item ? 'bg-blue-700' : ''}  `} onClick={() => setBillings(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
                             }
                         </ItemSlider>
 
@@ -170,7 +135,7 @@ function Home() {
 
                             <ItemSlider>
                                 {
-                                    data && data?.pharmacies?.map((item, i) => (<p key={i} className={`flex justify-center text-[40px] cursor-pointer ${pharmacies === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => pharmaciesHandler(item.system_id)}>{item.system_id}<span className='text-sm bg-green-800 text-white'> {ttime}</span></p>))
+                                    data && data?.pharmacy?.map((item, i) => (<div key={i} style={{ backgroundColor: pharmacy == item ? "blue" : "" }} className={`flex justify-center text-[25px] cursor-pointer ${pharmacy === item ? 'bg-blue-700' : ''}  `} onClick={() => setPharmacy(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
                                 }
                             </ItemSlider>
 
@@ -182,7 +147,7 @@ function Home() {
                     <div className='text-center'>
                         <ItemSlider>
                             {
-                                data && data?.synlabs?.map((item, i) => (<p key={i} style={{ backgroundColor: synlabs == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${synlabs === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setSynlabs(item.system_id)}>{item.system_id}<span className='text-sm bg-blue-200 text-black'> {ttime}</span></p>))
+                                data && data?.laboratory?.map((item, i) => (<div key={i} style={{ backgroundColor: laboratory == item ? "blue" : "" }} className={`flex justify-center text-[25px] cursor-pointer ${laboratory === item ? 'bg-blue-700' : ''}  `} onClick={() => setLaboratory(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
                             }
                         </ItemSlider>
                     </div>
@@ -192,7 +157,7 @@ function Home() {
                     <div className='text-center'>
                         <ItemSlider>
                             {
-                                data && data?.receptions?.map((item, i) => (<p key={i} className={`flex justify-center text-[40px] cursor-pointer ${receptions === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => receptionsHandler(item.system_id)}>{item.system_id} <span className='text-sm bg-green-600 text-white'> {timer}</span></p>))
+                                data && data?.doctor?.map((item, i) => (<div key={i} style={{ backgroundColor: doctor == item ? "blue" : "" }} className={`flex justify-center text-[25px] cursor-pointer ${doctor === item ? 'bg-blue-700' : ''}  `} onClick={() => setDoctor(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
                             }
                         </ItemSlider>
                     </div>
