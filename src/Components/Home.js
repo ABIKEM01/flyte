@@ -3,6 +3,7 @@ import axios from 'axios'
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ItemSlider from './ItemSlider';
+import { calculateNewValue } from '@testing-library/user-event/dist/utils';
 
 function Home() {
     const [data, setData] = useState([])
@@ -11,6 +12,17 @@ function Home() {
     const [billings, setBillings] = useState(false)
     const [synlabs, setSynlabs] = useState(false)
     const [pharmacies, setPharmacies] = useState("")
+
+    useEffect(() => {
+        calc()
+    }, [])
+    const calc = async () => {
+        const response = axios.get('https://misas.avonmedical.com:8020/api/v1/get-queue')
+        console.log('response from server', response)
+        // setData(response.data)
+    }
+
+
 
     // We need ref in this, because we are dealing
     // with JS setInterval to keep track of it and
@@ -108,7 +120,7 @@ function Home() {
 
         setBillings(system_id)
     }
-    const synlabsHandler = (system_id) => {  
+    const synlabsHandler = (system_id) => {
 
         setSynlabs(system_id)
     }
@@ -120,9 +132,11 @@ function Home() {
 
     const fetchData = async () => {
         const response = await axios.get('http://hollymab.com/api/mails')
-        console.log('response from server', response.data)
+
         setData(response.data)
     }
+    const timestamp = Date.now()
+    const ttime = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(timestamp);
     return (
         <div className='w-full h-auto bg-flytePrimary'>
             <p className='flex justify-center w-full text-[40px] font-bold pt-5'>Top Ticket(s) Labelled "BLUE" PROCEED To Service STATION</p>
@@ -132,7 +146,7 @@ function Home() {
                     <div className='text-center'>
                         <ItemSlider>
                             {
-                                data && data?.vitals?.map((item, i) => (<p key={i} style={{ backgroundColor: vital == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${vital === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item.system_id)}>{item.system_id} <span className='text-sm bg-violet-600 text-white'> {timer}</span></p>))
+                                data && data?.vitals?.map((item, i) => (<p key={i} style={{ backgroundColor: vital == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${vital === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item.system_id)}>{item.system_id} <span className='text-sm bg-violet-600 text-white'> {ttime}</span></p>))
                             }
                         </ItemSlider>
                     </div>
@@ -143,7 +157,7 @@ function Home() {
 
                         <ItemSlider>
                             {
-                                data && data?.billings?.map((item, i) => (<p key={i} style={{ backgroundColor: billings == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${billings === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setBillings(item.system_id)}>{item.system_id}<span className='text-sm bg-red-300 text-white'> {timer}</span></p>))
+                                data && data?.billings?.map((item, i) => (<p key={i} style={{ backgroundColor: billings == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${billings === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setBillings(item.system_id)}>{item.system_id}<span className='text-sm bg-red-300 text-white'> {ttime}</span></p>))
                             }
                         </ItemSlider>
 
@@ -156,7 +170,7 @@ function Home() {
 
                             <ItemSlider>
                                 {
-                                    data && data?.pharmacies?.map((item, i) => (<p key={i} className={`flex justify-center text-[40px] cursor-pointer ${pharmacies === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => pharmaciesHandler(item.system_id)}>{item.system_id}<span className='text-sm bg-green-800 text-white'> {timer}</span></p>))
+                                    data && data?.pharmacies?.map((item, i) => (<p key={i} className={`flex justify-center text-[40px] cursor-pointer ${pharmacies === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => pharmaciesHandler(item.system_id)}>{item.system_id}<span className='text-sm bg-green-800 text-white'> {ttime}</span></p>))
                                 }
                             </ItemSlider>
 
@@ -168,7 +182,7 @@ function Home() {
                     <div className='text-center'>
                         <ItemSlider>
                             {
-                                data && data?.synlabs?.map((item, i) => (<p key={i} style={{ backgroundColor: synlabs == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${synlabs === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setSynlabs(item.system_id)}>{item.system_id}<span className='text-sm bg-blue-200 text-black'> {timer}</span></p>))
+                                data && data?.synlabs?.map((item, i) => (<p key={i} style={{ backgroundColor: synlabs == item.system_id ? "blue" : "" }} className={`flex justify-center text-[40px] cursor-pointer ${synlabs === item.system_id ? 'bg-blue-700' : ''}  `} onClick={() => setSynlabs(item.system_id)}>{item.system_id}<span className='text-sm bg-blue-200 text-black'> {ttime}</span></p>))
                             }
                         </ItemSlider>
                     </div>
@@ -183,11 +197,6 @@ function Home() {
                         </ItemSlider>
                     </div>
                 </div>
-
-
-
-
-
             </div>
         </div>
     )
