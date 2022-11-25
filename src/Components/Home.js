@@ -131,7 +131,7 @@ function Home() {
 
         // setData(response.data)
         // for vitals
-        if (response.data.vitals.length > data?.vitals?.length) {
+        if (response.data?.vitals?.length > data?.vitals?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.vitals.length - data.vitals.length;
             console.log('numberofdata', numberOfData);
@@ -147,7 +147,7 @@ function Home() {
 
         }
         // for billings
-        if (response.data.billings.length > data?.billings?.length) {
+        if (response.data?.billings?.length > data?.billings?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.billings.length - data.billings.length;
             console.log('numberofdata', numberOfData);
@@ -163,7 +163,7 @@ function Home() {
             )
         }
         // for laboratory
-        if (response.data.laboratory.length > data?.laboratory?.length) {
+        if (response.data?.laboratory?.length > data?.laboratory?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.laboratory.length - data.laboratory.length;
             console.log('numberofdata', numberOfData);
@@ -178,7 +178,7 @@ function Home() {
             })
         }
         // for pharmacy
-        if (response.data.pharmacy.length > data?.pharmacy?.length) {
+        if (response.data?.pharmacy?.length > data?.pharmacy?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.pharmacy.length - data.pharmacy.length;
             console.log('numberofdata', numberOfData);
@@ -193,7 +193,7 @@ function Home() {
             })
         }
         // for doctor
-        if (response.data.doctor.length > data?.doctor?.length) {
+        if (response.data?.doctor?.length > data?.doctor?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.doctor.length - data.doctor.length;
             console.log('numberofdata', numberOfData);
