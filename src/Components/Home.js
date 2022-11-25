@@ -26,14 +26,12 @@ function Home() {
         const interval = setInterval(() => {
             // We get the current time
             const date = new Date(time);
-            console.log('date', date)
             // We format the time to add a 0 if it's less than 10
             const formattedTime = date
                 .toISOString()
                 .substr(11, 8)
                 .replace(/^(\d{2}):(\d{2}):(\d{2})$/, '$1:$2:$3');
             // We update the time
-            console.log('formattedTime', formattedTime)
             setTimer(formattedTime);
             // We add 1 second
             time += 1000;
@@ -127,7 +125,7 @@ function Home() {
         // const response = await axios.get('http://127.0.0.1:9000/api/check')
         console.log('all data', response.data)
         // console.log(response.data.vitals[0].vital)
-        console.log('length', response.data.vitals.length)
+        console.log('length', response.data?.vitals?.length)
 
         setData(response.data)
 
