@@ -4,6 +4,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ItemSlider from './ItemSlider';
 import { calculateNewValue } from '@testing-library/user-event/dist/utils';
+import Loading from './Loading';
 
 function Home() {
     const [data, setData] = useState([])
@@ -12,7 +13,6 @@ function Home() {
     const [billings, setBillings] = useState(false)
     const [laboratory, setLaboratory] = useState(false)
     const [pharmacy, setPharmacy] = useState("")
-
 
     const Ref = useRef(null);
 
@@ -26,12 +26,14 @@ function Home() {
         const interval = setInterval(() => {
             // We get the current time
             const date = new Date(time);
+            console.log('date', date)
             // We format the time to add a 0 if it's less than 10
             const formattedTime = date
                 .toISOString()
                 .substr(11, 8)
                 .replace(/^(\d{2}):(\d{2}):(\d{2})$/, '$1:$2:$3');
             // We update the time
+            console.log('formattedTime', formattedTime)
             setTimer(formattedTime);
             // We add 1 second
             time += 1000;
@@ -217,13 +219,16 @@ function Home() {
         <div className='w-full h-auto bg-flytePrimary'>
             <p className='flex justify-center w-full text-[40px] font-bold pt-5'>Top Ticket(s) Labelled "BLUE" PROCEED To Service STATION</p>
             {/* <p>{timer}</p> */}
+
             <div className='flex flex-wrap justify-around mt-12'>
                 <div className='w-1/6 bg-flyPrimary100 h-auto '>
                     <p className=' bg-violet-600 text-[28px] font-bold flex justify-center'>VITALS</p>
                     <div className='text-center'>
                         <ItemSlider last={data?.vitals?.length} >
                             {
-                                data && data?.vitals?.map((item, i) => (<div key={i} style={{ backgroundColor: vital == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${vital === item ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
+                                data && data.vitals ? data?.vitals?.map((item, i) => (<div key={i} style={{ backgroundColor: vital == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${vital === item ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>))
+                                    :
+                                    <Loading />
                             }
                         </ItemSlider>
                     </div>
@@ -234,7 +239,9 @@ function Home() {
 
                         <ItemSlider last={data?.billings?.length} >
                             {
-                                data && data?.billings?.map((item, i) => (<div key={i} style={{ backgroundColor: billings == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${billings === item ? 'bg-blue-700' : ''}  `} onClick={() => setBillings(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
+                                data && data.billings ? data?.billings?.map((item, i) => (<div key={i} style={{ backgroundColor: billings == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${billings === item ? 'bg-blue-700' : ''}  `} onClick={() => setBillings(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>))
+                                    :
+                                    <Loading />
                             }
                         </ItemSlider>
 
@@ -247,7 +254,9 @@ function Home() {
 
                             <ItemSlider last={data?.pharmacy?.length} >
                                 {
-                                    data && data?.pharmacy?.map((item, i) => (<div key={i} style={{ backgroundColor: pharmacy == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${pharmacy === item ? 'bg-blue-700' : ''}  `} onClick={() => setPharmacy(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
+                                    data && data.pharmacy ? data?.pharmacy?.map((item, i) => (<div key={i} style={{ backgroundColor: pharmacy == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${pharmacy === item ? 'bg-blue-700' : ''}  `} onClick={() => setPharmacy(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>))
+                                        :
+                                        <Loading />
                                 }
                             </ItemSlider>
 
@@ -259,7 +268,7 @@ function Home() {
                     <div className='text-center'>
                         <ItemSlider last={data?.laboratory?.length} >
                             {
-                                data && data?.laboratory?.map((item, i) => (<div key={i} style={{ backgroundColor: laboratory == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${laboratory === item ? 'bg-blue-700' : ''}  `} onClick={() => setLaboratory(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
+                                data && data.laboratory ? data?.laboratory?.map((item, i) => (<div key={i} style={{ backgroundColor: laboratory == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${laboratory === item ? 'bg-blue-700' : ''}  `} onClick={() => setLaboratory(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>)) : <Loading />
                             }
                         </ItemSlider>
                     </div>
@@ -269,7 +278,7 @@ function Home() {
                     <div className='text-center'>
                         <ItemSlider last={data?.doctor?.length}>
                             {
-                                data && data?.doctor?.map((item, i) => (<div key={i} style={{ backgroundColor: doctor == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${doctor === item ? 'bg-blue-700' : ''}  `} onClick={() => setDoctor(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {ttime}</span> </div>))
+                                data && data.doctor ? data?.doctor?.map((item, i) => (<div key={i} style={{ backgroundColor: doctor == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${doctor === item ? 'bg-blue-700' : ''}  `} onClick={() => setDoctor(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>)) : <Loading />
                             }
                         </ItemSlider>
                     </div>
