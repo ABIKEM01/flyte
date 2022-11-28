@@ -13,17 +13,44 @@ function Home() {
     const [billings, setBillings] = useState(false)
     const [laboratory, setLaboratory] = useState(false)
     const [pharmacy, setPharmacy] = useState("")
+    const [rerender, setRerender] = useState(false)
+    const [startVital, setStartVital] = useState('');
+    const [startBilling, setStartBilling] = useState('');
+    const [startLaboratory, setStartLaboratory] = useState('');
+    const [startPharmacy, setStartPharmacy] = useState('');
+    const [startDoctor, setStartDoctor] = useState('');
 
     const Ref = useRef(null);
 
     // The state for our timer
-    const [timer, setTimer] = useState('00:00:00');
+    const [timer, setTimer] = useState({});
+    const [vitalTimer, setVitalTimer] = useState({});
+    const [billingTimer, setBillingTimer] = useState({});
+    const [laboratoryTimer, setLaboratoryTimer] = useState({});
+    const [pharmacyTimer, setPharmacyTimer] = useState({});
+    const [doctorTimer, setDoctorTimer] = useState({});
 
-    const startTimer = () => {
+    const startTimer = (t, start) => {
         // We set the time to 0
+        if (start == 'Vital') {
+            setStartVital(t);
+        }
+        if (start == 'Billing') {
+            setStartBilling(t);
+        }
+        if (start == 'Laboratory') {
+            setStartLaboratory(t);
+        }
+        if (start == 'Pharmacy') {
+            setStartPharmacy(t);
+        }
+        if (start == 'Doctor') {
+            setStartDoctor(t);
+        }
         let time = 0;
         // We set an interval to update the time every second
-        const interval = setInterval(() => {
+        let interval = 'interval_' + t;
+        interval = setInterval(() => {
             // We get the current time
             const date = new Date(time);
             // We format the time to add a 0 if it's less than 10
@@ -32,9 +59,47 @@ function Home() {
                 .substr(11, 8)
                 .replace(/^(\d{2}):(\d{2}):(\d{2})$/, '$1:$2:$3');
             // We update the time
-            setTimer(formattedTime);
             // We add 1 second
             time += 1000;
+            // insert a key into timer object with the value of the formatted time
+            console.log('GET', localStorage.getItem(start) != t)
+            // localStorage.setItem(start, t
+
+            if (start == 'Vital') {
+                if (localStorage.getItem(start) != startVital) {
+                    setVitalTimer((timer) => ({ ...timer, [t]: formattedTime }));
+                    localStorage.setItem(start, t);
+                }
+            }
+
+            if (start == 'Billing') {
+                if (localStorage.getItem(start) != startBilling) {
+                    setBillingTimer((timer) => ({ ...timer, [t]: formattedTime }));
+                    localStorage.setItem(start, t);
+                }
+            }
+
+            if (start == 'Laboratory') {
+                if (localStorage.getItem(start) != startLaboratory) {
+                    setLaboratoryTimer((timer) => ({ ...timer, [t]: formattedTime }));
+                    localStorage.setItem(start, t);
+                }
+            }
+
+            if (start == 'Pharmacy') {
+                if (localStorage.getItem(start) != startPharmacy) {
+                    setPharmacyTimer((timer) => ({ ...timer, [t]: formattedTime }));
+                    localStorage.setItem(start, t);
+                }
+            }
+            if (start == 'Doctor') {
+                if (localStorage.getItem(start) != startDoctor) {
+                    setDoctorTimer((timer) => ({ ...timer, [t]: formattedTime }));
+                    localStorage.setItem(start, t);
+                }
+            }
+
+
         }, 1000);
         // We return the interval to clear it when the component unmounts
         return interval;
@@ -68,7 +133,7 @@ function Home() {
 
     // const clearTimer = (e) => {
 
-    //     setTimer('01:00:59');
+    //     setTimer('01:-:59');
     //     if (Ref.current) clearInterval(Ref.current);
     //     const id = setInterval(() => {
     //         startTimer(e);
@@ -89,13 +154,15 @@ function Home() {
     // const onClickReset = () => {
     //     clearTimer(getDeadTime());
     // }
+    // useEffect(() => {
+    //     console.log('second render')
+    // }, [rerender])
 
     useEffect(() => {
-        fetchData()
-        startTimer()
+        // fetchData();
+        setTimeout(fetchData, 10000)
+    }, [rerender])
 
-        setInterval(fetchData, 40000)
-    }, [])
 
     const receptionsHandler = (system_id) => {
         console.log('clicked')
@@ -120,93 +187,111 @@ function Home() {
     }
 
     const fetchData = async () => {
+        // console.log('first', vitalTimer, 'secod', billingTimer, 'thrid', laboratoryTimer, 'fouth', pharmacyTimer, 'last', doctorTimer)
         localStorage.setItem('scrollToEnd', true);
+        // live api
         const response = await axios.get('https://misas.avonmedical.com:8020/api/v1/get-queue')
+        // test api
         // const response = await axios.get('http://127.0.0.1:9000/api/check')
-        console.log('all data', response.data)
-        // console.log(response.data.vitals[0].vital)
-        console.log('length', response.data?.vitals?.length)
 
         setData(response.data)
+        setRerender(!rerender)
+        if (!data.vitals?.length || !data.billings?.length || !data.doctors?.length || !data.laboratory?.length || !data.pharmacy?.length) {
+            setRerender(!rerender)
+        }
 
-        // setData(response.data)
-        // for vitals
+        // simulation
+        // if (response.data?.vitals?.length > data?.vitals?.length) {
+
+        //     localStorage.setItem('scrollToEnd', false);
+        //     let numberOfData = response.data.vitals.length - data.vitals.length;
+        // 
+        //     // add last new data equivalent to number of data to the state
+        //     let newData = response.data.vitals.slice(-numberOfData);
+        //     // starttimer for each new data
+        //     newData.forEach((item) => {
+        //         startTimer(item.vital, 'Vital');
+        //     })
+
+        // }
+
+        //for vitals
         if (response.data?.vitals?.length > data?.vitals?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.vitals.length - data.vitals.length;
-            console.log('numberofdata', numberOfData);
             // add last new data equivalent to number of data to the state
             let newData = response.data.vitals.slice(-numberOfData);
-            console.log('newData', newData);
-            setData((prev) => {
-                return {
-                    ...prev,
-                    vitals: [...prev.vitals, ...newData]
-                }
-            })
+            // starttimer for each new data
+            newData.forEach((item) => {
+                startTimer(item, 'Vital');
+            }
+            )
 
         }
-        // for billings
+        // // for billings
         if (response.data?.billings?.length > data?.billings?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.billings.length - data.billings.length;
-            console.log('numberofdata', numberOfData);
             // add last new data equivalent to number of data to the state
             let newData = response.data.billings.slice(-numberOfData);
-            console.log('newData', newData);
-            setData((prev) => {
-                return {
-                    ...prev,
-                    billings: [...prev.billings, ...newData]
-                }
+            // starttimer for each new data
+            newData.forEach((item) => {
+                startTimer(item, 'Billing');
             }
             )
         }
-        // for laboratory
+        // // for laboratory
         if (response.data?.laboratory?.length > data?.laboratory?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.laboratory.length - data.laboratory.length;
-            console.log('numberofdata', numberOfData);
             // add last new data equivalent to number of data to the state
             let newData = response.data.laboratory.slice(-numberOfData);
-            console.log('newData', newData);
-            setData((prev) => {
-                return {
-                    ...prev,
-                    laboratory: [...prev.laboratory, ...newData]
-                }
-            })
+            // starttimer for each new data
+            newData.forEach((item) => {
+                startTimer(item, 'Laboratory');
+            }
+            )
         }
-        // for pharmacy
+        // // for pharmacy
         if (response.data?.pharmacy?.length > data?.pharmacy?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.pharmacy.length - data.pharmacy.length;
-            console.log('numberofdata', numberOfData);
             // add last new data equivalent to number of data to the state
             let newData = response.data.pharmacy.slice(-numberOfData);
-            console.log('newData', newData);
-            setData((prev) => {
-                return {
-                    ...prev,
-                    pharmacy: [...prev.pharmacy, ...newData]
-                }
+            // starttimer for each new data
+            newData.forEach((item) => {
+                startTimer(item, 'Pharmacy');
             })
         }
-        // for doctor
+
+        // // for doctor
         if (response.data?.doctor?.length > data?.doctor?.length) {
             localStorage.setItem('scrollToEnd', false);
             let numberOfData = response.data.doctor.length - data.doctor.length;
-            console.log('numberofdata', numberOfData);
             // add last new data equivalent to number of data to the state
             let newData = response.data.doctor.slice(-numberOfData);
-            console.log('newData', newData);
-            setData((prev) => {
-                return {
-                    ...prev,
-                    doctor: [...prev.doctor, ...newData]
-                }
+            // starttimer for each new data
+            newData.forEach((item) => {
+                startTimer(item, 'Doctor');
             })
         }
+
+        // ref
+        // // for doctor
+        // if (response.data?.doctor?.length > data?.doctor?.length) {
+        //     localStorage.setItem('scrollToEnd', false);
+        //     let numberOfData = response.data.doctor.length - data.doctor.length;
+        // 
+        //     // add last new data equivalent to number of data to the state
+        //     let newData = response.data.doctor.slice(-numberOfData);
+        //     console.log('newData', newData);
+        //     setData((prev) => {
+        //         return {
+        //             ...prev,
+        //             doctor: [...prev.doctor, ...newData]
+        //         }
+        //     })
+        // }
 
     }
 
@@ -216,28 +301,44 @@ function Home() {
     return (
         <div className='w-full h-auto bg-flytePrimary'>
             <p className='flex justify-center w-full text-[40px] font-bold pt-5'>Top Ticket(s) Labelled "BLUE" PROCEED To Service STATION</p>
-            {/* <p>{timer}</p> */}
+            {/* <p>{timer.t}</p> */}
 
             <div className='flex flex-wrap justify-around mt-12'>
+
                 <div className='w-1/6 bg-flyPrimary100 h-auto '>
-                    <p className=' bg-violet-600 text-[28px] font-bold flex justify-center'>VITALS</p>
+                    <p className='bg-violet-600  text-[28px] font-bold flex justify-center'>VITALS</p>
                     <div className='text-center'>
                         <ItemSlider last={data?.vitals?.length} >
                             {
-                                data && data.vitals ? data?.vitals?.map((item, i) => (<div key={i} style={{ backgroundColor: vital == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${vital === item ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>))
+                                data && data.vitals ? data?.vitals?.map((item, i) => (<div key={i} style={{ backgroundColor: vital == item ? "blue" : "" }} className={`bg-gradient-to-r from-green-400 to-violet-500 font-medium flex justify-center text-[20px] cursor-pointer ${vital === item ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item)}>{item} <br /><span className='text-sm  text-white'> {
+                                    Object.keys(vitalTimer).includes(item) ? vitalTimer[item] : '-:-:-'
+                                }</span> </div>))
                                     :
                                     <Loading />
                             }
                         </ItemSlider>
                     </div>
                 </div>
+
+                {/* <div className='w-1/6 bg-flyPrimary100 h-auto '>
+                    <p className='  text-[28px] font-bold flex justify-center'>VITALS</p>
+                    <div className='text-center'>
+                        <ItemSlider last={data?.vitals?.length} >
+                            {
+                                data && data.vitals ? data?.vitals?.map((item, i) => (<div key={i} style={{ backgroundColor: vital == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${vital === item ? 'bg-blue-700' : ''}  `} onClick={() => setVital(item)}>{item} <br /><span className='text-sm  text-white'> {timer.t}</span> </div>))
+                                    :
+                                    <Loading />
+                            }
+                        </ItemSlider>
+                    </div>
+                </div> */}
                 <div className='w-1/6 bg-flyPrimary100 h-auto '>
                     <p className='bg-red-300 text-[28px] font-bold flex justify-center'>BILLING</p>
                     <div className='text-center'>
 
                         <ItemSlider last={data?.billings?.length} >
                             {
-                                data && data.billings ? data?.billings?.map((item, i) => (<div key={i} style={{ backgroundColor: billings == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${billings === item ? 'bg-blue-700' : ''}  `} onClick={() => setBillings(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>))
+                                data && data.billings ? data?.billings?.map((item, i) => (<div key={i} style={{ backgroundColor: billings == item ? "blue" : "" }} className={`bg-gradient-to-r from-blue-400 to-pink-400 font-medium flex justify-center text-[20px] cursor-pointer ${billings === item ? 'bg-blue-700' : ''}  `} onClick={() => setBillings(item)}>{item} <br /><span className='text-sm  text-white'> {Object.keys(billingTimer).includes(item) ? billingTimer[item] : '-:-:-'}</span> </div>))
                                     :
                                     <Loading />
                             }
@@ -252,7 +353,7 @@ function Home() {
 
                             <ItemSlider last={data?.pharmacy?.length} >
                                 {
-                                    data && data.pharmacy ? data?.pharmacy?.map((item, i) => (<div key={i} style={{ backgroundColor: pharmacy == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${pharmacy === item ? 'bg-blue-700' : ''}  `} onClick={() => setPharmacy(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>))
+                                    data && data.pharmacy ? data?.pharmacy?.map((item, i) => (<div key={i} style={{ backgroundColor: pharmacy == item ? "blue" : "" }} className={`bg-gradient-to-r from-green-400 to-blue-500 font-medium flex justify-center text-[20px] cursor-pointer ${pharmacy === item ? 'bg-blue-700' : ''}  `} onClick={() => setPharmacy(item)}>{item} <br /><span className='text-sm  text-white'> {Object.keys(pharmacyTimer).includes(item) ? pharmacyTimer[item] : '-:-:-'}</span> </div>))
                                         :
                                         <Loading />
                                 }
@@ -266,17 +367,18 @@ function Home() {
                     <div className='text-center'>
                         <ItemSlider last={data?.laboratory?.length} >
                             {
-                                data && data.laboratory ? data?.laboratory?.map((item, i) => (<div key={i} style={{ backgroundColor: laboratory == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${laboratory === item ? 'bg-blue-700' : ''}  `} onClick={() => setLaboratory(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>)) : <Loading />
+                                data && data.laboratory ? data?.laboratory?.map((item, i) => (<div key={i} style={{ backgroundColor: laboratory == item ? "blue" : "" }} className={`bg-gradient-to-r from-yellow-400 to-blue-500 font-medium flex justify-center text-[20px] cursor-pointer ${laboratory === item ? 'bg-blue-700' : ''}  `} onClick={() => setLaboratory(item)}>{item} <br /><span className='text-sm  text-white'> {Object.keys(laboratoryTimer).includes(item) ? laboratoryTimer[item] : '-:-:-'}</span> </div>)) : <Loading />
                             }
                         </ItemSlider>
                     </div>
                 </div>
                 <div className='w-1/6 bg-flyPrimary100 h-auto '>
-                    <p className='bg-green-600 text-[28px] font-bold flex justify-center'>DOCTOR</p>
+                    <p className='bg-green-600 text-[28px] font-bold font-medium flex justify-center'>DOCTOR</p>
                     <div className='text-center'>
                         <ItemSlider last={data?.doctor?.length}>
                             {
-                                data && data.doctor ? data?.doctor?.map((item, i) => (<div key={i} style={{ backgroundColor: doctor == item ? "blue" : "" }} className={`flex justify-center text-[20px] cursor-pointer ${doctor === item ? 'bg-blue-700' : ''}  `} onClick={() => setDoctor(item)}>{item} <br /><span className='text-sm bg-violet-600 text-white'> {timer}</span> </div>)) : <Loading />
+                                data && data.doctor ? data?.doctor?.map((item, i) => (<div key={i} style={{ backgroundColor: doctor == item ? "blue" : "" }} className={`bg-gradient-to-r from-green-400 to-blue-500 font-medium flex justify-center text-[20px] cursor-pointer ${doctor === item ? 'bg-blue-700' : ''}  `} onClick={() => setDoctor(item)}>{item} <br /><span className='text-sm  text-white'> {Object.keys(doctorTimer).includes(item) ? doctorTimer[item] : '-:-:-'}</span> </div>)) : <Loading />
+
                             }
                         </ItemSlider>
                     </div>
