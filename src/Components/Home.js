@@ -301,7 +301,7 @@ function Home() {
     return (
         <div className='w-full h-auto bg-flytePrimary'>
             <p className='flex justify-center w-full text-[40px] font-bold pt-5'>Top Ticket(s) Labelled "BLUE" PROCEED To Service STATION</p>
-            <p>{timer.t}</p>
+            {/* <p>{timer.t}</p> */}
 
             <div className='flex flex-wrap justify-around mt-12'>
 
